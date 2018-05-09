@@ -259,7 +259,7 @@ for(i in 1:length(unique_tickers)){
   ma.20<-c(ma.20, movavg(AdjClose,20,type="e"))
   ma.40<-c(ma.40, movavg(AdjClose,40,type="e"))
   ma.80<-c(ma.80, movavg(AdjClose,80,type="e"))
-
+  
 }
 eod$ma.5<-ma.5
 eod$ma.10<-ma.10
@@ -294,7 +294,7 @@ for(i in 1:eod_entries){
 
 eod$percent.K.5<-percent.K.5
 
-#SI14
+#SI 14
 percent.K.14<-vector()
 prev_ticker=""
 for(i in 1:eod_entries){
@@ -314,7 +314,7 @@ for(i in 1:eod_entries){
 eod$percent.K.14<-percent.K.14
 
 
-#SI30
+#SI 30
 percent.K.30<-vector()
 prev_ticker=""
 for(i in 1:eod_entries){
@@ -334,7 +334,7 @@ for(i in 1:eod_entries){
 
 eod$percent.K.30<-percent.K.30
 
-#SI60
+#SI 60
 percent.K.60<-vector()
 prev_ticker=""
 for(i in 1:eod_entries){
