@@ -355,6 +355,31 @@ for(i in 1:eod_entries){
 eod$percent.K.60<-percent.K.60
 
 eod<-eod[,-c(3:9)]
+View(eod)
+
+#Normalizing Pricing Data
+sd.40<-vector()
+prev_ticker=""
+for(i in 1:eod_entries){
+  if(eod$Ticker[i]!=prev_ticker){
+    j=0
+  }
+  if (j>39){
+    std.dev<-sd(eod$AdjClose[i-39:i])
+    sd.40<-c(sd.40, std.dev)
+  }
+  else{
+    sd.40<-c(sd.40, NA)
+  }
+  j=j+1
+  prev_ticker=eod$Ticker[i]
+}
+eod$sd.40<-sd.40
+
+eod$AdjOpen<-(eod$AdjOpen-eod$ma.40)/eod$sd.40
+eod$AdjClose<-(eod$AdjClose-eod$ma.40)/eod$sd.40
+eod$AdjHigh<-(eod$AdjHigh-eod$ma.40)/eod$sd.40
+eod$AdjLow<-(eod$AdjLow-eod$ma.40)/eod$sd.40
 
 eod=na.omit(eod)
 write.csv(eod,file = "myeod.csv", row.names = FALSE)
