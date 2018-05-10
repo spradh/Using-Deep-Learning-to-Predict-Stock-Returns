@@ -288,13 +288,6 @@ eod$macd.40v20<-eod$ma.40-eod$ma.20
 eod$macd.80v40<-eod$ma.80-eod$ma.40
 
 
-#Normalizing MACD
-eod$macd.10v5<-eod$macd.10v5/eod$sd.40
-eod$macd.20v10<-eod$macd.20v10/eod$sd.40
-eod$macd.40v20<-eod$macd.40v20/eod$sd.40
-eod$macd.80v40<-eod$macd.80v40/eod$sd.40
-
-
 #Stochastic Indicator
 #SI5
 percent.K.5<-vector()
