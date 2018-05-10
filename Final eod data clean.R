@@ -61,7 +61,7 @@ for(i in 1:eod_entries){
     upmove[i]=NA
   }
   else{
-    upmove[i]<-eod$AdjHigh[i]-eod$AdjLow[i-1]
+    upmove[i]<-eod$AdjHigh[i]-eod$AdjHigh[i-1]
   }
   prev_ticker=eod$Ticker[i]
 }
@@ -75,7 +75,7 @@ for(i in 1:eod_entries){
     downmove[i]=NA
   }
   else{
-    downmove[i]<-eod$AdjHigh[i-1]-eod$AdjLow[i]
+    downmove[i]<-eod$AdjLow[i-1]-eod$AdjLow[i]
   }
   prev_ticker=eod$Ticker[i]
 }
