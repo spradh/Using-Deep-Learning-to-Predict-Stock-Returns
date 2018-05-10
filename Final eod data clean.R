@@ -4,8 +4,8 @@ eod=read.csv("eod_fin_mid_cap.csv")
 library(pracma)
 View(eod)
 sapply(eod, class)
-colnames(eod)<-c("Ticker", "Date", "UnadjOpen", "UnadjHigh",
-                 "UnadjLow", "UnadjClose", "UnadjVol", "Dividends",
+colnames(eod)<-c("Ticker", "Date", "UnAdjOpen", "UnAdjHigh",
+                 "UnAdjLow", "UnAdjClose", "UnAdjVol", "Dividends",
                  "Splits", "AdjOpen", "AdjHigh", "AdjLow", "AdjClose",
                  "AdjVol")
 View(eod)
@@ -14,6 +14,27 @@ eod<-eod[order(eod$Ticker,eod$Date),]
 unique_tickers<-unique(eod$Ticker)
 
 eod_entries<-dim(eod)[1]
+
+#Calculating 40 day moving Standard Deviation of Closing Price
+sd.40<-vector()
+prev_ticker=""
+for(i in 1:eod_entries){
+  if(eod$Ticker[i]!=prev_ticker){
+    j=0
+  }
+  if (j>39){
+    std.dev<-sd(eod$AdjClose[i-39:i])
+    sd.40<-c(sd.40, std.dev)
+  }
+  else{
+    sd.40<-c(sd.40, NA)
+  }
+  j=j+1
+  prev_ticker=eod$Ticker[i]
+}
+eod$sd.40<-sd.40
+
+
 
 #calculating log return
 log_return<-vector()
@@ -59,9 +80,6 @@ for(i in 1:eod_entries){
   prev_ticker=eod$Ticker[i]
 }
 eod$downmove<-downmove
-
-
-
 
 #calulating +DM
 pos.DM<-vector()
@@ -131,7 +149,6 @@ for(i in 1:length(unique_tickers)){
 }
 eod$pos.DI<-pos.DI
 
-
 neg.DI=vector()
 for(i in 1:length(unique_tickers)){
   tic_df=eod[eod$Ticker==unique_tickers[i],c("neg.DM","tr")]
@@ -141,8 +158,7 @@ eod$neg.DI<-neg.DI
 
 
 
-#adx
-
+#ADX
 #5day
 adx.5=vector()
 for(i in 1:length(unique_tickers)){
@@ -176,9 +192,9 @@ for(i in 1:length(unique_tickers)){
 eod$adx.60<-adx.60/100
 
 
+#Calculating RSI
 
-#calculating Gains and Loss
-
+# Gains 
 gain<-vector()
 prev_ticker<-""
 for(i in 1:eod_entries){
@@ -197,6 +213,8 @@ for(i in 1:eod_entries){
 }
 eod$gain<-gain
 
+
+# Loss 
 loss<-vector()
 prev_ticker<-""
 for(i in 1:eod_entries){
@@ -216,7 +234,6 @@ for(i in 1:eod_entries){
 eod$loss<-loss
 
 
-
 #Average Gain and Loss
 avg.gain=vector()
 avg.loss=vector()
@@ -225,10 +242,8 @@ for(i in 1:length(unique_tickers)){
   avg.gain=c(avg.gain, movavg(tic_df$gain,14,type="s"))
   avg.loss=c(avg.loss, movavg(tic_df$loss,14,type="s"))
 }
-
 eod$Avg.Gain<-avg.gain
 eod$Avg.Loss<-avg.loss
-
 
 #RS 
 eod$rs<-eod$Avg.Gain/eod$Avg.Loss
@@ -238,7 +253,6 @@ for(i in 1:length(unique_tickers)){
   ma.rs<-c(ma.rs, movavg(rs,14,type="s"))
 }
 eod$ma.rs<-ma.rs
-
 
 #RSI
 eod$rsi<-(100-100/(1+eod$ma.rs))/100
@@ -259,18 +273,26 @@ for(i in 1:length(unique_tickers)){
   ma.20<-c(ma.20, movavg(AdjClose,20,type="e"))
   ma.40<-c(ma.40, movavg(AdjClose,40,type="e"))
   ma.80<-c(ma.80, movavg(AdjClose,80,type="e"))
-  
 }
+
 eod$ma.5<-ma.5
 eod$ma.10<-ma.10
 eod$ma.20<-ma.20
 eod$ma.40<-ma.40
 eod$ma.80<-ma.80
 
+
 eod$macd.10v5<-eod$ma.10-eod$ma.5
 eod$macd.20v10<-eod$ma.20-eod$ma.10
 eod$macd.40v20<-eod$ma.40-eod$ma.20
 eod$macd.80v40<-eod$ma.80-eod$ma.40
+
+
+#Normalizing MACD
+eod$macd.10v5<-eod$macd.10v5/eod$sd.40
+eod$macd.20v10<-eod$macd.20v10/eod$sd.40
+eod$macd.40v20<-eod$macd.40v20/eod$sd.40
+eod$macd.80v40<-eod$macd.80v40/eod$sd.40
 
 
 #Stochastic Indicator
@@ -358,28 +380,44 @@ eod<-eod[,-c(3:9)]
 View(eod)
 
 #Normalizing Pricing Data
-sd.40<-vector()
-prev_ticker=""
-for(i in 1:eod_entries){
-  if(eod$Ticker[i]!=prev_ticker){
-    j=0
-  }
-  if (j>39){
-    std.dev<-sd(eod$AdjClose[i-39:i])
-    sd.40<-c(sd.40, std.dev)
-  }
-  else{
-    sd.40<-c(sd.40, NA)
-  }
-  j=j+1
-  prev_ticker=eod$Ticker[i]
-}
-eod$sd.40<-sd.40
+
 
 eod$AdjOpen<-(eod$AdjOpen-eod$ma.40)/eod$sd.40
 eod$AdjClose<-(eod$AdjClose-eod$ma.40)/eod$sd.40
 eod$AdjHigh<-(eod$AdjHigh-eod$ma.40)/eod$sd.40
 eod$AdjLow<-(eod$AdjLow-eod$ma.40)/eod$sd.40
 
-eod=na.omit(eod)
-write.csv(eod,file = "myeod.csv", row.names = FALSE)
+
+#Normalizing Volume 
+vol.sd.40<-vector()
+prev_ticker=""
+for(i in 1:eod_entries){
+  if(eod$Ticker[i]!=prev_ticker){
+    j=0
+  }
+  if (j>39){
+    vol.std.dev<-sd(eod$AdjVol[i-39:i])
+    vol.sd.40<-c(sd.40, vol.std.dev)
+  }
+  else{
+    vol.sd.40<-c(vol.sd.40, NA)
+  }
+  j=j+1
+  prev_ticker=eod$Ticker[i]
+}
+eod$vol.sd.40<-vol.sd.40
+
+#Moving Average Volume
+vol.ma.40<-vector()
+for(i in 1:length(unique_tickers)){  
+  AdjVol = eod[eod$Ticker==unique_tickers[i],c("AdjVol")]
+  vol.ma.40<-c(vol.ma.40, movavg(AdjVol,40,type="s"))
+}
+eod$vol.ma.40<-vol.ma.40
+
+eod$AdjVol<-(eod$AdjVol-eod$vol.ma.40)/eod$vol.sd.40
+
+
+#Omitting na from dataframe and saving dataframe as myeod.csv
+eod1=na.omit(eod)
+write.csv(eod1,file = "myeod.csv", row.names = FALSE)
