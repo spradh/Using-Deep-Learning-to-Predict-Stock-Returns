@@ -43,7 +43,7 @@ eod$log_returns_adj_close<-log_return
 
 #calculating upmove and downmove
 upmove<-vector()
-downmove<vector()
+downmove<-vector()
 prev_ticker=""
 for(i in 1:eod_entries){
   if(eod$Ticker[i]!=prev_ticker){
@@ -72,7 +72,7 @@ for(i in 1:eod_entries){
 
     if(eod$upmove[i]>eod$downmove[i] & eod$upmove[i]>0){
       pos.DM[i]<-eod$upmove[i]
-      neg.DM<-0
+      neg.DM[i]<-0
     }
     else if(eod$downmove[i]>eod$upmove[i] & eod$downmove[i]>0){
       neg.DM[i]<-eod$downmove[i]
@@ -149,6 +149,7 @@ eod$adx.60<-adx.60
 
 # Gain & Loss
 gain<-vector()
+loss<-vector()
 prev_ticker<-""
 for(i in 1:eod_entries){
   if(eod$Ticker[i]!=prev_ticker){
@@ -295,7 +296,7 @@ for(i in 1:eod_entries){
   #appending it to respective vectors
   sd.40.vol<-c(sd.40.vol, sd.vol)
   sd.40.close<-c(sd.40.close, sd.close)
-  ma.40.vol<-c(vol.ma.40, movavg(AdjVol,40,type="s"))
+  ma.40.vol<-c(vol.ma.40, movavg(temp.df$AdjVol,40,type="s"))
 }
 
 eod$sd.40.vol<-sd.40.vol
