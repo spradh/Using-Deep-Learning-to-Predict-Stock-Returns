@@ -20,22 +20,22 @@ unique_tickers<-unique(eod$Ticker)  #Unique set of Tickers
 eod_entries<-dim(eod)[1]            #Number of Observations
 
 #####################################################
-# Log Returns
+# Returns
 #####################################################
 
-log_return<-vector()
+returns<-vector()
 prev_ticker=""
 for(i in 1:eod_entries){
   if(eod$Ticker[i]!=prev_ticker){
-    log_return=c(log_return, NA)
+    returns=c(returns, NA)
   }
   else{
-    log_return[i]<-log(eod$AdjClose[i]/eod$AdjClose[i-1])
+    returns[i]<-(eod$AdjClose[i]/eod$AdjClose[i-1])
   }
   prev_ticker=eod$Ticker[i]
 }
 
-eod$log_returns_adj_close<-log_return
+eod$returns_adj_close<-returns
 
 #####################################################
 #ADX
@@ -282,32 +282,64 @@ eod$percent.K.60<-percent.K.60
 eod<-eod[,-c(3:9)]
 View(eod)
 
-#Calculating 40 day Moving Standard Deviation and Moving Averages of Closing Price and Volume
-sd.40.vol<-vector()
-sd.40.close<-vector()
-ma.40.vol<-vector()
+#Calculating 40 day Maximum Absolute Value
+max.vol<-vector()
+max.close<-vector()
+max.macd.10v5<-vector()
+max.macd.20v10<-vector()
+max.macd.40v20<-vector()
+max.macd.80v40<-vector()
+max.rsi<-vector
+max.percent.K.5<-vector()
+max.percent.K.14<-vector()
+max.percent.K.30<-vector()
+max.percent.K.60<-vector()
+max.adx.5<-vector()
+max.adx.14<-vector()
+max.adx.30<-vector()
+max.adx.60<-vector()
 
-prev_ticker=""
-for(i in 1:eod_entries){
-  temp.df=eod[eod$Ticker==unique_tickers[i],c("AdjClose","AdjVol")]
-  sd.close<-rollapply(temp.df$AdjClose,width=40,FUN=sd,fill=NA, align="right")
-  sd.vol<-rollapply(temp.df$AdjVol,width=40,FUN=sd,fill=NA, align="right")
+
+for(i in 1:length(unique_tickers)){
+  temp.df=eod[eod$Ticker==unique_tickers[i],]
+  max.vol<-c(max.vol, rollapply(abs(temp.df$AdjVol),width=40,FUN=max,fill=NA, align="right"))
+  max.close<-c(max.close, rollapply(abs(temp.df$AdjClose),width=40,FUN=max,fill=NA, align="right"))
+  max.macd.10v5<-c(max.macd.10v5, rollapply(abs(temp.df$macd.10v5),width=40,FUN=max,fill=NA, align="right"))
+  max.macd.20v10<-c(max.macd.20v10, rollapply(abs(temp.df$macd.20v10),width=40,FUN=max,fill=NA, align="right"))
+  max.macd.80v40<-c(max.macd.80v40, rollapply(abs(temp.df$macd.80v40),width=40,FUN=max,fill=NA, align="right"))
+  max.rsi<-c(max.rsi, rollapply(abs(temp.df$rsi),width=40,FUN=max,fill=NA, align="right"))
+  max.percent.K.5<-c(max.percent.K.5, rollapply(abs(temp.df$percent.K.5),width=40,FUN=max,fill=NA, align="right"))
+  max.percent.K.14<-c(max.percent.K.14, rollapply(abs(temp.df$percent.K.14),width=40,FUN=max,fill=NA, align="right"))
+  max.percent.K.30<-c(max.percent.K.30, rollapply(abs(temp.df$percent.K.30),width=40,FUN=max,fill=NA, align="right"))
+  max.percent.K.60<-c(max.percent.K.60, rollapply(abs(temp.df$percent.K.60),width=40,FUN=max,fill=NA, align="right"))
+  max.adx.5<-c(max.adx.5, rollapply(abs(temp.df$adx.5),width=40,FUN=max,fill=NA, align="right"))
+  max.adx.14<-c(max.adx.14, rollapply(abs(temp.df$adx.14),width=40,FUN=max,fill=NA, align="right"))
+  max.adx.30<-c(max.adx.30, rollapply(abs(temp.df$adx.30),width=40,FUN=max,fill=NA, align="right"))
+  max.adx.60<-c(max.adx.60, rollapply(abs(temp.df$adx.60),width=40,FUN=max,fill=NA, align="right"))
   
-  #appending it to respective vectors
-  sd.40.vol<-c(sd.40.vol, sd.vol)
-  sd.40.close<-c(sd.40.close, sd.close)
-  ma.40.vol<-c(vol.ma.40, movavg(temp.df$AdjVol,40,type="s"))
 }
 
-eod$sd.40.vol<-sd.40.vol
-eod$sd.40.close<-sd.40.close
-eod$ma.40.vol<-vol.ma.40
 
-#Normalizing Pricing Data
-eod$AdjOpen<-(eod$AdjOpen-eod$ma.40)/eod$sd.40
-eod$AdjClose<-(eod$AdjClose-eod$ma.40)/eod$sd.40
-eod$AdjHigh<-(eod$AdjHigh-eod$ma.40)/eod$sd.40
-eod$AdjLow<-(eod$AdjLow-eod$ma.40)/eod$sd.40
+
+#Normalizing Data
+eod$AdjVol<-eod$AdjVol/max.vol
+eod$AdjClose<-eod$AdjClose/max.close
+eod$AdjOpen<-eod$AdjOpen/max.close
+eod$AdjHigh<-eod$AdjHigh/max.close
+eod$AdjLow<-eod$AdjLow/max.close
+eod$macd.10v5<-eod$macd.10v5/max.macd.10v5
+eod$macd.20v10<-eod$macd.20v10/max.macd.20v10
+eod$macd.40v20<-eod$macd.40v20/max.macd.40v20
+eod$macd.80v40<-eod$macd.80v40/max.macd.80v40
+eod$rsi<-eod$rsi/max.rsi
+eod$percent.K.5<-eod$percent.K.5/max.percent.K.5
+eod$percent.K.14<-eod$percent.K.14/max.percent.K.14
+eod$percent.K.30<-eod$percent.K.30/max.percent.K.30
+eod$percent.K.60<-eod$percent.K.60/max.percent.K.60
+eod$adx.5<-eod$adx.5/max.adx.5
+eod$adx.14<-eod$adx.14/max.adx.14
+eod$adx.30<-eod$adx.30/max.adx.30
+eod$adx.60<-eod$adx.60/max.adx.60
 
 #normalizing Volume Data
 eod$AdjVol<-(eod$AdjVol-eod$vol.ma.40)/eod$vol.sd.40
