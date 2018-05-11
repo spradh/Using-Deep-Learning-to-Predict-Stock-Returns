@@ -1,14 +1,19 @@
+#importing all non standard libraries
+library(pracma)
+library(zoo)
+
 #importing eod file
 eod=read.csv("eod_fin_mid_cap.csv")
+sapply(eod, class) #checking Class of Columns
 
-library(pracma)
-View(eod)
-sapply(eod, class)
+#Renaming Columns
 colnames(eod)<-c("Ticker", "Date", "UnAdjOpen", "UnAdjHigh",
                  "UnAdjLow", "UnAdjClose", "UnAdjVol", "Dividends",
                  "Splits", "AdjOpen", "AdjHigh", "AdjLow", "AdjClose",
                  "AdjVol")
 View(eod)
+
+#Sorting dataframe by ticker then by date
 eod<-eod[order(eod$Ticker,eod$Date),]
 
 unique_tickers<-unique(eod$Ticker)  #Unique set of Tickers
@@ -83,8 +88,6 @@ for(i in 1:eod_entries){
 eod$pos.DM<-pos.DM
 eod$neg.DM<-neg.DM
 
-
-#Average true range
 #Calculating true range
 tr<-vector()
 prev_ticker=""
@@ -139,9 +142,10 @@ eod$adx.14<-adx.14
 eod$adx.30<-adx.30
 eod$adx.60<-adx.60
 
- 
 
-#Calculating RSI
+#####################################################
+#RSI
+#####################################################
 
 # Gain & Loss
 gain<-vector()
@@ -195,7 +199,10 @@ eod$ma.rs<-ma.rs
 eod$rsi<-(100-100/(1+eod$ma.rs))
 
 
+#####################################################
 #MACD
+#####################################################
+
 ma.5<-vector()
 ma.10<-vector()
 ma.20<-vector()
@@ -224,8 +231,11 @@ eod$macd.40v20<-eod$ma.40-eod$ma.20
 eod$macd.80v40<-eod$ma.80-eod$ma.40
 
 
-#Stochastic Indicator
-#SI5
+#####################################################
+# Stochastic Oscillators
+#####################################################
+
+
 percent.K.5<-vector()
 percent.K.14<-vector()
 percent.K.30<-vector()
@@ -264,6 +274,8 @@ eod$percent.K.5<-percent.K.5
 eod$percent.K.14<-percent.K.14
 eod$percent.K.30<-percent.K.30
 eod$percent.K.60<-percent.K.60
+
+
 
 #Dropping UnAdj Pricing Data
 eod<-eod[,-c(3:9)]
