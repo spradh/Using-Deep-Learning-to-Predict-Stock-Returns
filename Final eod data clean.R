@@ -341,10 +341,6 @@ eod$adx.14<-eod$adx.14/max.adx.14
 eod$adx.30<-eod$adx.30/max.adx.30
 eod$adx.60<-eod$adx.60/max.adx.60
 
-#normalizing Volume Data
-eod$AdjVol<-(eod$AdjVol-eod$vol.ma.40)/eod$vol.sd.40
-
-
 #Omitting na from dataframe and saving dataframe as myeod.csv
 eod1=na.omit(eod)
 write.csv(eod1,file = "myeod.csv", row.names = FALSE)
