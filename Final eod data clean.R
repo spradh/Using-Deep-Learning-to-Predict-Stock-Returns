@@ -11,12 +11,13 @@ colnames(eod)<-c("Ticker", "Date", "UnAdjOpen", "UnAdjHigh",
 View(eod)
 eod<-eod[order(eod$Ticker,eod$Date),]
 
-unique_tickers<-unique(eod$Ticker)
+unique_tickers<-unique(eod$Ticker)  #Unique set of Tickers
+eod_entries<-dim(eod)[1]            #Number of Observations
 
-eod_entries<-dim(eod)[1]
+#####################################################
+# Log Returns
+#####################################################
 
-
-#calculating log return
 log_return<-vector()
 prev_ticker=""
 for(i in 1:eod_entries){
@@ -31,72 +32,55 @@ for(i in 1:eod_entries){
 
 eod$log_returns_adj_close<-log_return
 
+#####################################################
+#ADX
+#####################################################
 
-
-#calculating upmove
+#calculating upmove and downmove
 upmove<-vector()
+downmove<vector()
 prev_ticker=""
 for(i in 1:eod_entries){
   if(eod$Ticker[i]!=prev_ticker){
     upmove[i]=NA
-  }
-  else{
-    upmove[i]<-eod$AdjHigh[i]-eod$AdjHigh[i-1]
-  }
-  prev_ticker=eod$Ticker[i]
-}
-eod$upmove<-upmove
-
-#calculating downmove
-downmove<-vector()
-prev_ticker=""
-for(i in 1:eod_entries){
-  if(eod$Ticker[i]!=prev_ticker){
     downmove[i]=NA
   }
   else{
+    upmove[i]<-eod$AdjHigh[i]-eod$AdjHigh[i-1]
     downmove[i]<-eod$AdjLow[i-1]-eod$AdjLow[i]
   }
   prev_ticker=eod$Ticker[i]
 }
+eod$upmove<-upmove
 eod$downmove<-downmove
 
-#calulating +DM
+#calulating +DM and -DM
 pos.DM<-vector()
-prev_ticker=""
-for(i in 1:eod_entries){
-  if(eod$Ticker[i]!=prev_ticker){
-    pos.DM[i]<-NA
-  }
-  else{
-    if(eod$upmove[i]>eod$downmove[i] & eod$upmove[i]>0){
-      pos.DM[i]<-eod$upmove[i]
-    }
-    else{
-      pos.DM[i]<-0
-    }
-  }
-  prev_ticker<-eod$Ticker[i]
-}
-eod$pos.DM<-pos.DM
-
-#calulating -DM
 neg.DM<-vector()
 prev_ticker=""
 for(i in 1:eod_entries){
   if(eod$Ticker[i]!=prev_ticker){
+    pos.DM[i]<-NA
     neg.DM[i]<-NA
   }
   else{
-    if(eod$downmove[i]>eod$upmove[i] & eod$downmove[i]>0){
+
+    if(eod$upmove[i]>eod$downmove[i] & eod$upmove[i]>0){
+      pos.DM[i]<-eod$upmove[i]
+      neg.DM<-0
+    }
+    else if(eod$downmove[i]>eod$upmove[i] & eod$downmove[i]>0){
       neg.DM[i]<-eod$downmove[i]
+      pos.DM[i]<-0
     }
     else{
+      pos.DM[i]<-0
       neg.DM[i]<-0
-    }
+    }  
   }
   prev_ticker<-eod$Ticker[i]
 }
+eod$pos.DM<-pos.DM
 eod$neg.DM<-neg.DM
 
 
@@ -125,9 +109,9 @@ pos.DI=vector()
 neg.DI=vector()
 
 for(i in 1:length(unique_tickers)){
-  tic_df=eod[eod$Ticker==unique_tickers[i],c("pos.DM","tr")]
-  pos.DI<-c(pos.DI, (100*movavg(tic_df$pos.DM, 14, type="s"))/movavg(tic_df$tr, 14, type="s"))
-  neg.DI<-c(neg.DI, (100*movavg(tic_df$neg.DM, 14, type="s"))/movavg(tic_df$tr, 14, type="s"))
+  temp.df=eod[eod$Ticker==unique_tickers[i],c("pos.DM","neg.DM","tr")]
+  pos.DI<-c(pos.DI, (100*movavg(temp.df$pos.DM, 14, type="s"))/movavg(temp.df$tr, 14, type="s"))
+  neg.DI<-c(neg.DI, (100*movavg(temp.df$neg.DM, 14, type="s"))/movavg(temp.df$tr, 14, type="s"))
 }
 eod$pos.DI<-pos.DI
 eod$neg.DI<-neg.DI
@@ -220,7 +204,6 @@ ma.80<-vector()
 
 for(i in 1:length(unique_tickers)){  
   AdjClose = eod[eod$Ticker==unique_tickers[i],c("AdjClose")]
-  cat(unique_tickers[i],length(AdjClose),"\n")
   ma.5<-c(ma.5, movavg(AdjClose,5,type="e"))
   ma.10<-c(ma.10, movavg(AdjClose,10,type="e"))
   ma.20<-c(ma.20, movavg(AdjClose,20,type="e"))
