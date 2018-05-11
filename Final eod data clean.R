@@ -306,6 +306,7 @@ for(i in 1:length(unique_tickers)){
   max.close<-c(max.close, rollapply(abs(temp.df$AdjClose),width=40,FUN=max,fill=NA, align="right"))
   max.macd.10v5<-c(max.macd.10v5, rollapply(abs(temp.df$macd.10v5),width=40,FUN=max,fill=NA, align="right"))
   max.macd.20v10<-c(max.macd.20v10, rollapply(abs(temp.df$macd.20v10),width=40,FUN=max,fill=NA, align="right"))
+  max.macd.40v20<-c(max.macd.40v20, rollapply(abs(temp.df$macd.40v20),width=40,FUN=max,fill=NA, align="right"))
   max.macd.80v40<-c(max.macd.80v40, rollapply(abs(temp.df$macd.80v40),width=40,FUN=max,fill=NA, align="right"))
   max.rsi<-c(max.rsi, rollapply(abs(temp.df$rsi),width=40,FUN=max,fill=NA, align="right"))
   max.percent.K.5<-c(max.percent.K.5, rollapply(abs(temp.df$percent.K.5),width=40,FUN=max,fill=NA, align="right"))
