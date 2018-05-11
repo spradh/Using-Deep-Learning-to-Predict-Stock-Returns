@@ -15,26 +15,6 @@ unique_tickers<-unique(eod$Ticker)
 
 eod_entries<-dim(eod)[1]
 
-#Calculating 40 day moving Standard Deviation of Closing Price
-sd.40<-vector()
-prev_ticker=""
-for(i in 1:eod_entries){
-  if(eod$Ticker[i]!=prev_ticker){
-    j=0
-  }
-  if (j>39){
-    std.dev<-sd(eod$AdjClose[i-39:i])
-    sd.40<-c(sd.40, std.dev)
-  }
-  else{
-    sd.40<-c(sd.40, NA)
-  }
-  j=j+1
-  prev_ticker=eod$Ticker[i]
-}
-eod$sd.40<-sd.40
-
-
 
 #calculating log return
 log_return<-vector()
@@ -50,7 +30,7 @@ for(i in 1:eod_entries){
 }
 
 eod$log_returns_adj_close<-log_return
-#View(eod)
+
 
 
 #calculating upmove
@@ -89,7 +69,7 @@ for(i in 1:eod_entries){
     pos.DM[i]<-NA
   }
   else{
-    if(eod$upmove[i]>eod$downmove[i]&eod$upmove[i]>0){
+    if(eod$upmove[i]>eod$downmove[i] & eod$upmove[i]>0){
       pos.DM[i]<-eod$upmove[i]
     }
     else{
@@ -108,8 +88,8 @@ for(i in 1:eod_entries){
     neg.DM[i]<-NA
   }
   else{
-    if(eod$downmove[i]>eod$upmove[i]&eod$downmove[i]>0){
-      neg.DM[i]<-eod$upmove[i]
+    if(eod$downmove[i]>eod$upmove[i] & eod$downmove[i]>0){
+      neg.DM[i]<-eod$downmove[i]
     }
     else{
       neg.DM[i]<-0
@@ -142,101 +122,72 @@ eod$tr<-tr
 
 #14day
 pos.DI=vector()
+neg.DI=vector()
 
 for(i in 1:length(unique_tickers)){
   tic_df=eod[eod$Ticker==unique_tickers[i],c("pos.DM","tr")]
   pos.DI<-c(pos.DI, (100*movavg(tic_df$pos.DM, 14, type="s"))/movavg(tic_df$tr, 14, type="s"))
-}
-eod$pos.DI<-pos.DI
-
-neg.DI=vector()
-for(i in 1:length(unique_tickers)){
-  tic_df=eod[eod$Ticker==unique_tickers[i],c("neg.DM","tr")]
   neg.DI<-c(neg.DI, (100*movavg(tic_df$neg.DM, 14, type="s"))/movavg(tic_df$tr, 14, type="s"))
 }
+eod$pos.DI<-pos.DI
 eod$neg.DI<-neg.DI
 
-
-
 #ADX
-#5day
 adx.5=vector()
-for(i in 1:length(unique_tickers)){
-  tic_df=eod[eod$Ticker==unique_tickers[i],c("pos.DI","neg.DI")]
-  adx.5<-c(adx.5, (100*movavg(abs(tic_df$pos.DI-tic_df$neg.DI),5,type="s"))/(tic_df$pos.DI+tic_df$neg.DI))
-}
-eod$adx.5<-adx.5/100
-
-#14day
 adx.14=vector()
-for(i in 1:length(unique_tickers)){
-  tic_df=eod[eod$Ticker==unique_tickers[i],c("pos.DI","neg.DI")]
-  adx.14<-c(adx.14, (100*movavg(abs(tic_df$pos.DI-tic_df$neg.DI),14,type="s"))/(tic_df$pos.DI+tic_df$neg.DI))
-}
-eod$adx.14<-adx.14/100
-
-#30day
 adx.30=vector()
-for(i in 1:length(unique_tickers)){
-  tic_df=eod[eod$Ticker==unique_tickers[i],c("pos.DI","neg.DI")]
-  adx.30<-c(adx.30, (100*movavg(abs(tic_df$pos.DI-tic_df$neg.DI),30,type="s"))/(tic_df$pos.DI+tic_df$neg.DI))
-}
-eod$adx.30<-adx.30/100
-
-#60day
 adx.60=vector()
-for(i in 1:length(unique_tickers)){
-  tic_df=eod[eod$Ticker==unique_tickers[i],c("pos.DI","neg.DI")]
-  adx.60<-c(adx.60, (100*movavg(abs(tic_df$pos.DI-tic_df$neg.DI),60,type="s"))/(tic_df$pos.DI+tic_df$neg.DI))
-}
-eod$adx.60<-adx.60/100
 
+for(i in 1:length(unique_tickers)){
+  temp.df=eod[eod$Ticker==unique_tickers[i],c("pos.DI","neg.DI")]
+  #5 day
+  adx.5<-c(adx.5, (100*movavg(abs(temp.df$pos.DI-temp.df$neg.DI),5,type="s"))/(temp.df$pos.DI+temp.df$neg.DI))
+  #14 day
+  adx.14<-c(adx.14, (100*movavg(abs(temp.df$pos.DI-temp.df$neg.DI),14,type="s"))/(temp.df$pos.DI+temp.df$neg.DI))
+  #30 day
+  adx.30<-c(adx.30, (100*movavg(abs(temp.df$pos.DI-temp.df$neg.DI),30,type="s"))/(temp.df$pos.DI+temp.df$neg.DI))
+  #60 day
+  adx.60<-c(adx.60, (100*movavg(abs(temp.df$pos.DI-temp.df$neg.DI),60,type="s"))/(temp.df$pos.DI+temp.df$neg.DI))
+}
+
+eod$adx.5<-adx.5
+eod$adx.14<-adx.14
+eod$adx.30<-adx.30
+eod$adx.60<-adx.60
+
+ 
 
 #Calculating RSI
 
-# Gains 
+# Gain & Loss
 gain<-vector()
 prev_ticker<-""
 for(i in 1:eod_entries){
   if(eod$Ticker[i]!=prev_ticker){
     gain[i]=NA
+    loss[i]=NA
   }
   else{
     if(eod$AdjClose[i]-eod$AdjClose[i-1]>0){
       gain[i]=eod$AdjClose[i]-eod$AdjClose[i-1]
+      loss[i]=0
     }
     else{
       gain[i]=0
+      loss[i]=eod$AdjClose[i-1]-eod$AdjClose[i]
+      
     }
   }
   prev_ticker=eod$Ticker[i]
 }
 eod$gain<-gain
-
-
-# Loss 
-loss<-vector()
-prev_ticker<-""
-for(i in 1:eod_entries){
-  if(eod$Ticker[i]!=prev_ticker){
-    loss[i]=NA
-  }
-  else{
-    if(eod$AdjClose[i]-eod$AdjClose[i-1]<0){
-      loss[i]=eod$AdjClose[i-1]-eod$AdjClose[i]
-    }
-    else{
-      loss[i]=0
-    }
-  }
-  prev_ticker=eod$Ticker[i]
-}
 eod$loss<-loss
 
 
 #Average Gain and Loss
 avg.gain=vector()
 avg.loss=vector()
+
 for(i in 1:length(unique_tickers)){  
   tic_df = eod[eod$Ticker==unique_tickers[i],c("gain","loss")]
   avg.gain=c(avg.gain, movavg(tic_df$gain,14,type="s"))
@@ -247,6 +198,8 @@ eod$Avg.Loss<-avg.loss
 
 #RS 
 eod$rs<-eod$Avg.Gain/eod$Avg.Loss
+
+#Calculating Moving Average RS
 ma.rs<-vector()
 for(i in 1:length(unique_tickers)){  
   rs = eod[eod$Ticker==unique_tickers[i],c("rs")]
@@ -255,7 +208,7 @@ for(i in 1:length(unique_tickers)){
 eod$ma.rs<-ma.rs
 
 #RSI
-eod$rsi<-(100-100/(1+eod$ma.rs))/100
+eod$rsi<-(100-100/(1+eod$ma.rs))
 
 
 #MACD
@@ -291,123 +244,76 @@ eod$macd.80v40<-eod$ma.80-eod$ma.40
 #Stochastic Indicator
 #SI5
 percent.K.5<-vector()
-prev_ticker=""
-for(i in 1:eod_entries){
-  if(eod$Ticker[i]!=prev_ticker){
-    j=0
-  }
-  if (j>4){
-    k<-(eod$AdjClose[i]-min(eod$AdjLow[i-4:i]))/(max(eod$AdjHigh[i-4:i])-min(eod$AdjLow[i-4:i]))
-    percent.K.5<-c(percent.K.5, k)
-  }
-  else{
-    percent.K.5<-c(percent.K.5, NA)
-  }
-  j=j+1
-  prev_ticker=eod$Ticker[i]
+percent.K.14<-vector()
+percent.K.30<-vector()
+percent.K.60<-vector()
+
+for(i in 1:length(unique_tickers)){  
+  temp.df = eod[eod$Ticker==unique_tickers[i],c("AdjClose","AdjHigh","AdjLow")]
+  #5 day
+  K.5<-(temp.df$AdjClose-rollapply(temp.df$AdjLow, width=5, FUN=min, fill=NA, align="right"))/
+    (rollapply(temp.df$AdjHigh, width=5, FUN=max, fill=NA, align="right")-
+     rollapply(temp.df$AdjLow, width=5, FUN=min, fill=NA, align="right"))
+  percent.K.5<-c(percent.K.5, k)
+  
+  #14 day
+  K.14<-(temp.df$AdjClose-rollapply(temp.df$AdjLow, width=14, FUN=min, fill=NA, align="right"))/
+    (rollapply(temp.df$AdjHigh, width=14, FUN=max, fill=NA, align="right")-
+     rollapply(temp.df$AdjLow, width=14, FUN=min, fill=NA, align="right"))
+  percent.K.14<-c(percent.K.14, K.14)
+  
+  #30 day
+  K.30<-(temp.df$AdjClose-rollapply(temp.df$AdjLow, width=30, FUN=min, fill=NA, align="right"))/
+    (rollapply(temp.df$AdjHigh, width=30, FUN=max, fill=NA, align="right")-
+     rollapply(temp.df$AdjLow, width=30, FUN=min, fill=NA, align="right"))
+  percent.K.30<-c(percent.K.30, K.30) 
+  
+  #60 day
+  K.60<-(temp.df$AdjClose-rollapply(temp.df$AdjLow, width=60, FUN=min, fill=NA, align="right"))/
+    (rollapply(temp.df$AdjHigh, width=60, FUN=max, fill=NA, align="right")-
+     rollapply(temp.df$AdjLow, width=60, FUN=min, fill=NA, align="right"))
+  percent.K.60<-c(percent.K.60, K.60) 
+
+
 }
 
 eod$percent.K.5<-percent.K.5
-
-#SI 14
-percent.K.14<-vector()
-prev_ticker=""
-for(i in 1:eod_entries){
-  if(eod$Ticker[i]!=prev_ticker){
-    j=0
-  }
-  if (j>13){
-    k<-(eod$AdjClose[i]-min(eod$AdjLow[i-13:i]))/(max(eod$AdjHigh[i-13:i])-min(eod$AdjLow[i-13:i]))
-    percent.K.14<-c(percent.K.14, k)
-  }else{
-    percent.K.14<-c(percent.K.14, NA)
-  }
-  j=j+1
-  prev_ticker=eod$Ticker[i]
-}
-
 eod$percent.K.14<-percent.K.14
-
-
-#SI 30
-percent.K.30<-vector()
-prev_ticker=""
-for(i in 1:eod_entries){
-  if(eod$Ticker[i]!=prev_ticker){
-    j=0
-  }
-  if (j>29){
-    k<-(eod$AdjClose[i]-min(eod$AdjLow[i-29:i]))/(max(eod$AdjHigh[i-29:i])-min(eod$AdjLow[i-29:i]))
-    percent.K.30<-c(percent.K.30, k)
-  }
-  else{
-    percent.K.30<-c(percent.K.30, NA)
-  }
-  j=j+1
-  prev_ticker=eod$Ticker[i]
-}
-
 eod$percent.K.30<-percent.K.30
-
-#SI 60
-percent.K.60<-vector()
-prev_ticker=""
-for(i in 1:eod_entries){
-  if(eod$Ticker[i]!=prev_ticker){
-    j=0
-  }
-  if (j>59){
-    k<-(eod$AdjClose[i]-min(eod$AdjLow[i-59:i]))/(max(eod$AdjHigh[i-59:i])-min(eod$AdjLow[i-59:i]))
-    percent.K.60<-c(percent.K.60, k)
-  }
-  else{
-    percent.K.60<-c(percent.K.60, NA)
-  }
-  j=j+1
-  prev_ticker=eod$Ticker[i]
-}
-
 eod$percent.K.60<-percent.K.60
 
+#Dropping UnAdj Pricing Data
 eod<-eod[,-c(3:9)]
 View(eod)
 
+#Calculating 40 day Moving Standard Deviation and Moving Averages of Closing Price and Volume
+sd.40.vol<-vector()
+sd.40.close<-vector()
+ma.40.vol<-vector()
+
+prev_ticker=""
+for(i in 1:eod_entries){
+  temp.df=eod[eod$Ticker==unique_tickers[i],c("AdjClose","AdjVol")]
+  sd.close<-rollapply(temp.df$AdjClose,width=40,FUN=sd,fill=NA, align="right")
+  sd.vol<-rollapply(temp.df$AdjVol,width=40,FUN=sd,fill=NA, align="right")
+  
+  #appending it to respective vectors
+  sd.40.vol<-c(sd.40.vol, sd.vol)
+  sd.40.close<-c(sd.40.close, sd.close)
+  ma.40.vol<-c(vol.ma.40, movavg(AdjVol,40,type="s"))
+}
+
+eod$sd.40.vol<-sd.40.vol
+eod$sd.40.close<-sd.40.close
+eod$ma.40.vol<-vol.ma.40
+
 #Normalizing Pricing Data
-
-
 eod$AdjOpen<-(eod$AdjOpen-eod$ma.40)/eod$sd.40
 eod$AdjClose<-(eod$AdjClose-eod$ma.40)/eod$sd.40
 eod$AdjHigh<-(eod$AdjHigh-eod$ma.40)/eod$sd.40
 eod$AdjLow<-(eod$AdjLow-eod$ma.40)/eod$sd.40
 
-
-#Normalizing Volume 
-vol.sd.40<-vector()
-prev_ticker=""
-for(i in 1:eod_entries){
-  if(eod$Ticker[i]!=prev_ticker){
-    j=0
-  }
-  if (j>39){
-    vol.std.dev<-sd(eod$AdjVol[i-39:i])
-    vol.sd.40<-c(sd.40, vol.std.dev)
-  }
-  else{
-    vol.sd.40<-c(vol.sd.40, NA)
-  }
-  j=j+1
-  prev_ticker=eod$Ticker[i]
-}
-eod$vol.sd.40<-vol.sd.40
-
-#Moving Average Volume
-vol.ma.40<-vector()
-for(i in 1:length(unique_tickers)){  
-  AdjVol = eod[eod$Ticker==unique_tickers[i],c("AdjVol")]
-  vol.ma.40<-c(vol.ma.40, movavg(AdjVol,40,type="s"))
-}
-eod$vol.ma.40<-vol.ma.40
-
+#normalizing Volume Data
 eod$AdjVol<-(eod$AdjVol-eod$vol.ma.40)/eod$vol.sd.40
 
 
