@@ -248,7 +248,7 @@ for(i in 1:length(unique_tickers)){
   K.5<-(temp.df$AdjClose-rollapply(temp.df$AdjLow, width=5, FUN=min, fill=NA, align="right"))/
     (rollapply(temp.df$AdjHigh, width=5, FUN=max, fill=NA, align="right")-
      rollapply(temp.df$AdjLow, width=5, FUN=min, fill=NA, align="right"))
-  percent.K.5<-c(percent.K.5, k)
+  percent.K.5<-c(percent.K.5, K.5)
   
   #14 day
   K.14<-(temp.df$AdjClose-rollapply(temp.df$AdjLow, width=14, FUN=min, fill=NA, align="right"))/
