@@ -348,4 +348,5 @@ View(eod)
 #Omitting na from dataframe and saving dataframe as myeod.csv
 eod1=na.omit(eod[-c(66217,66218,155291,369084,369085,369086,477609,477610,477611,477612,624549),-c(24,25)])
 View(eod1)
+#saving file as myeod.csv
 write.csv(eod1,file = "myeod.csv", row.names = FALSE)
