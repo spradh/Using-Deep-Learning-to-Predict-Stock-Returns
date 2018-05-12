@@ -69,7 +69,7 @@ for(i in 1:eod_entries){
     neg.DM[i]<-NA
   }
   else{
-
+    
     if(eod$upmove[i]>eod$downmove[i] & eod$upmove[i]>0){
       pos.DM[i]<-eod$upmove[i]
       neg.DM[i]<-0
@@ -247,28 +247,28 @@ for(i in 1:length(unique_tickers)){
   #5 day
   K.5<-(temp.df$AdjClose-rollapply(temp.df$AdjLow, width=5, FUN=min, fill=NA, align="right"))/
     (rollapply(temp.df$AdjHigh, width=5, FUN=max, fill=NA, align="right")-
-     rollapply(temp.df$AdjLow, width=5, FUN=min, fill=NA, align="right"))
+       rollapply(temp.df$AdjLow, width=5, FUN=min, fill=NA, align="right"))
   percent.K.5<-c(percent.K.5, K.5)
   
   #14 day
   K.14<-(temp.df$AdjClose-rollapply(temp.df$AdjLow, width=14, FUN=min, fill=NA, align="right"))/
     (rollapply(temp.df$AdjHigh, width=14, FUN=max, fill=NA, align="right")-
-     rollapply(temp.df$AdjLow, width=14, FUN=min, fill=NA, align="right"))
+       rollapply(temp.df$AdjLow, width=14, FUN=min, fill=NA, align="right"))
   percent.K.14<-c(percent.K.14, K.14)
   
   #30 day
   K.30<-(temp.df$AdjClose-rollapply(temp.df$AdjLow, width=30, FUN=min, fill=NA, align="right"))/
     (rollapply(temp.df$AdjHigh, width=30, FUN=max, fill=NA, align="right")-
-     rollapply(temp.df$AdjLow, width=30, FUN=min, fill=NA, align="right"))
+       rollapply(temp.df$AdjLow, width=30, FUN=min, fill=NA, align="right"))
   percent.K.30<-c(percent.K.30, K.30) 
   
   #60 day
   K.60<-(temp.df$AdjClose-rollapply(temp.df$AdjLow, width=60, FUN=min, fill=NA, align="right"))/
     (rollapply(temp.df$AdjHigh, width=60, FUN=max, fill=NA, align="right")-
-     rollapply(temp.df$AdjLow, width=60, FUN=min, fill=NA, align="right"))
+       rollapply(temp.df$AdjLow, width=60, FUN=min, fill=NA, align="right"))
   percent.K.60<-c(percent.K.60, K.60) 
-
-
+  
+  
 }
 
 eod$percent.K.5<-percent.K.5
@@ -308,16 +308,10 @@ for(i in 1:length(unique_tickers)){
   max.macd.20v10<-c(max.macd.20v10, rollapply(abs(temp.df$macd.20v10),width=40,FUN=max,fill=NA, align="right"))
   max.macd.40v20<-c(max.macd.40v20, rollapply(abs(temp.df$macd.40v20),width=40,FUN=max,fill=NA, align="right"))
   max.macd.80v40<-c(max.macd.80v40, rollapply(abs(temp.df$macd.80v40),width=40,FUN=max,fill=NA, align="right"))
-  max.rsi<-c(max.rsi, rollapply(abs(temp.df$rsi),width=40,FUN=max,fill=NA, align="right"))
   max.percent.K.5<-c(max.percent.K.5, rollapply(abs(temp.df$percent.K.5),width=40,FUN=max,fill=NA, align="right"))
   max.percent.K.14<-c(max.percent.K.14, rollapply(abs(temp.df$percent.K.14),width=40,FUN=max,fill=NA, align="right"))
   max.percent.K.30<-c(max.percent.K.30, rollapply(abs(temp.df$percent.K.30),width=40,FUN=max,fill=NA, align="right"))
   max.percent.K.60<-c(max.percent.K.60, rollapply(abs(temp.df$percent.K.60),width=40,FUN=max,fill=NA, align="right"))
-  max.adx.5<-c(max.adx.5, rollapply(abs(temp.df$adx.5),width=40,FUN=max,fill=NA, align="right"))
-  max.adx.14<-c(max.adx.14, rollapply(abs(temp.df$adx.14),width=40,FUN=max,fill=NA, align="right"))
-  max.adx.30<-c(max.adx.30, rollapply(abs(temp.df$adx.30),width=40,FUN=max,fill=NA, align="right"))
-  max.adx.60<-c(max.adx.60, rollapply(abs(temp.df$adx.60),width=40,FUN=max,fill=NA, align="right"))
-  
 }
 
 
@@ -328,20 +322,30 @@ eod$AdjClose<-eod$AdjClose/max.close
 eod$AdjOpen<-eod$AdjOpen/max.close
 eod$AdjHigh<-eod$AdjHigh/max.close
 eod$AdjLow<-eod$AdjLow/max.close
+eod$ma.5<-eod$ma.5/max.close
+eod$ma.10<-eod$ma.10/max.close
+eod$ma.20<-eod$ma.20/max.close
+eod$ma.40<-eod$ma.40/max.close
+eod$ma.80<-eod$ma.80/max.close
 eod$macd.10v5<-eod$macd.10v5/max.macd.10v5
 eod$macd.20v10<-eod$macd.20v10/max.macd.20v10
 eod$macd.40v20<-eod$macd.40v20/max.macd.40v20
 eod$macd.80v40<-eod$macd.80v40/max.macd.80v40
-eod$rsi<-eod$rsi/max.rsi
+eod$rsi<-eod$rsi/100
 eod$percent.K.5<-eod$percent.K.5/max.percent.K.5
 eod$percent.K.14<-eod$percent.K.14/max.percent.K.14
 eod$percent.K.30<-eod$percent.K.30/max.percent.K.30
 eod$percent.K.60<-eod$percent.K.60/max.percent.K.60
-eod$adx.5<-eod$adx.5/max.adx.5
-eod$adx.14<-eod$adx.14/max.adx.14
-eod$adx.30<-eod$adx.30/max.adx.30
-eod$adx.60<-eod$adx.60/max.adx.60
+eod$adx.5<-eod$adx.5/100
+eod$adx.14<-eod$adx.14/100
+eod$adx.30<-eod$adx.30/100
+eod$adx.60<-eod$adx.60/100
+
+
+View(eod)
+
 
 #Omitting na from dataframe and saving dataframe as myeod.csv
-eod1=na.omit(eod)
+eod1=na.omit(eod[-c(66217,66218,155291,369084,369085,369086,477609,477610,477611,477612,624549),-c(24,25)])
+View(eod1)
 write.csv(eod1,file = "myeod.csv", row.names = FALSE)
